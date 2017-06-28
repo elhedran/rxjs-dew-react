@@ -38,6 +38,8 @@ export abstract class Component<Props, State, RootState, Action> extends React.C
             this.subscription = undefined;
         }
     }
+
+    abstract render(): JSX.Element | null | false;
 }
 
 export default Component;
