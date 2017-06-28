@@ -9,7 +9,7 @@ export type Props<State, Action> = {
 
 export const storeKey = '@rxjs-dew-react/context/store';
 
-export class Provider<S, A> extends React.Component<Props<S, A>, undefined> {
+export class Provider<S, A> extends React.Component<Props<S, A>, {}> {
     static childContextTypes = {
         [storeKey]: PropTypes.object
     };
