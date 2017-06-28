@@ -1,0 +1,41 @@
+{
+    "name": "rxjs-dew-react",
+    "version": "0.2.0",
+    "description": "React bindings for rxjs-dw",
+    "main": "lib/index.js",
+    "typings": "lib/index",
+    "readme": "README.md",
+    "files": [
+        "/lib"
+    ],
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "tsc"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/elhedran/rxjs-dew-react.git"
+    },
+    "keywords": [
+        "typescript",
+        "rxjs"
+    ],
+    "author": "elhedran@gmail.com",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/elhedran/rxjs-dew-react/issues"
+    },
+    "homepage": "https://github.com/elhedran/rxjs-dew-react#readme",
+    "devDependencies": {
+        "tslint": "^5.4.3",
+        "typescript": "2.3.4"
+    },
+    "dependencies": {
+        "@types/prop-types": "^15.5.1",
+        "@types/react": "^15.0.33",
+        "prop-types": "^15.5.10",
+        "react": "^15.6.1",
+        "rxjs": "^5.4.1",
+        "rxjs-dew": "^0.2.1"
+    }
+}
