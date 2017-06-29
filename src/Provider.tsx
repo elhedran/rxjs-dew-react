@@ -5,28 +5,35 @@ import { Store } from 'rxjs-dew';
 
 export type Props<State, Action> = {
     store: Store<State, Action>;
+    storeKey?: string;
 };
 
-export const storeKey = '@rxjs-dew-react/context/store';
+export const storeContextKey = '@rxjs-dew-react/context/store';
+export const defaultStoreKey = 'default';
 
 export class Provider<S, A> extends React.Component<Props<S, A>, {}> {
     static childContextTypes = {
-        [storeKey]: PropTypes.object
+        [storeContextKey]: PropTypes.object
+    };
+    static contextTypes = {
+        [storeContextKey]: PropTypes.object
     };
 
     getChildContext() {
+        const parentContext = this.context[storeContextKey];
+        const thisContext = {
+            [this.props.storeKey || defaultStoreKey]: this.props.store,
+        };
+        const childContext = parentContext
+            ? Object.assign({}, parentContext, thisContext)
+            : thisContext;
         return {
-            [storeKey]: this.props.store,
+            [storeContextKey]: childContext
         };
     }
 
-    constructor(props: Props<S, A>, context: {}) {
-        super(props, context);
-        this[storeKey] = props.store;
-    }
-
-    componentWillReceiveProps(nextProps: Props<S, A>) {
-        if (this[storeKey] !== nextProps.store) {
+    componentWillReceiveProps(nextProps: Readonly<Props<S, A>>) {
+        if (this.props.store !== nextProps.store) {
             throw '<Provider> does not support changing store property on the fly. ';
         }
     }
