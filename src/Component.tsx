@@ -4,7 +4,21 @@ import * as PropTypes from 'prop-types';
 import { Subscription } from 'rxjs';
 import { Store } from 'rxjs-dew';
 
-export abstract class Component<Props, State, RootState, Action> extends
+/**
+ * Extends React.Component to connect to an Dew store provided to
+ * the React context via an Dew Provider.
+ * - `Props` - component specific properties
+ * - `State` - component specific state
+ * - `StoreState` - State type as provided by the dew store
+ * - `Action` - Action type as consumed by the dew store
+ * 
+ * In addition to the component properties and additional optional property
+ * is added, `storeKey`, which allows specifying a store provided under
+ * a key other than the default Dew store. This is useful for example for
+ * separating out a routing Dew store from application specific an application
+ * specific store.
+ */
+export abstract class Component<Props, State, StoreState, Action> extends
     React.Component<Props & { storeKey?: string }, State>
 {
     static contextTypes = {
@@ -13,7 +27,7 @@ export abstract class Component<Props, State, RootState, Action> extends
 
     private readonly store =
     this.context[storeContextKey]
-    [this.props.storeKey || defaultStoreKey] as Store<RootState, Action>;
+    [this.props.storeKey || defaultStoreKey] as Store<StoreState, Action>;
     private readonly state$ = this.store.state$;
     private readonly dispatch$ = this.store.dispatch$;
     private subscription: Subscription | undefined;
@@ -32,8 +46,18 @@ export abstract class Component<Props, State, RootState, Action> extends
         }
     }
 
-    mapToState?(state: RootState): Pick<State, keyof State>;
+/**
+ * Override this function to map the StoreState to this component's state.
+ * The result will be applied to the `setState` function.
+ * 
+ * @param storeState the current state of the Dew store.
+ */
+    mapToState?(storeState: StoreState): Pick<State, keyof State>;
 
+/**
+ * Dispatches actions to the Dew store
+ * @param action the action to dispatch
+ */
     dispatch = (action: Action) => this.dispatch$.next(action);
 
     componentWillReceiveProps(nextProps: Readonly<Props & { storeKey?: string }>) {
