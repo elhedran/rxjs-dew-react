@@ -29,8 +29,10 @@ export abstract class Component<Props, State, StoreState, Action> extends
     this.context[storeContextKey]
     [this.props.storeKey || defaultStoreKey] as Store<StoreState, Action>;
     private readonly state$ = this.store.state$;
+    private readonly action$ = this.store.action$;
     private readonly dispatch$ = this.store.dispatch$;
-    private subscription: Subscription | undefined;
+    private stateSubscription: Subscription | undefined;
+    private actionSubscription: Subscription | undefined;
 
     constructor(props: Props, context: {}) {
         super(props, context);
@@ -55,6 +57,13 @@ export abstract class Component<Props, State, StoreState, Action> extends
     mapToState?(storeState: StoreState): Pick<State, keyof State>;
 
 /**
+ *  Override this function to apply actions to this component's state.
+ * @param state the current state prior to applying the action
+ * @param action the action to apply.
+ */
+    soak?(state: State, action: Action): Pick<State, keyof State>;
+
+/**
  * Dispatches actions to the Dew store
  * @param action the action to dispatch
  */
@@ -67,15 +76,22 @@ export abstract class Component<Props, State, StoreState, Action> extends
     }
 
     componentDidMount() {
-        this.subscription = this.state$.subscribe(
+        this.stateSubscription = this.state$.subscribe(
             rs => this.mapToState && this.setState(this.mapToState(rs))
         );
+        this.actionSubscription = this.action$.subscribe(
+            a => this.soak && this.setState(this.soak(this.state, a))
+        )
     }
 
     componentWillUnmount() {
-        if (this.subscription) {
-            this.subscription.unsubscribe();
-            this.subscription = undefined;
+        if (this.stateSubscription) {
+            this.stateSubscription.unsubscribe();
+            this.stateSubscription = undefined;
+        }
+        if (this.actionSubscription) {
+            this.actionSubscription.unsubscribe();
+            this.actionSubscription = undefined;
         }
     }
 
