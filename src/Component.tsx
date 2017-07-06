@@ -76,12 +76,16 @@ export abstract class Component<Props, State, StoreState, Action> extends
     }
 
     componentDidMount() {
-        this.stateSubscription = this.state$.subscribe(
-            rs => this.mapToState && this.setState(this.mapToState(rs))
-        );
-        this.actionSubscription = this.action$.subscribe(
-            a => this.soak && this.setState(this.soak(this.state, a))
-        )
+        if (this.mapToState) {
+            this.stateSubscription = this.state$.subscribe(
+                rs => this.mapToState && this.setState(this.mapToState(rs))
+            );
+        }
+        if (this.soak) {
+            this.actionSubscription = this.action$.subscribe(
+                a => this.soak && this.setState(this.soak(this.state, a))
+            );
+        }
     }
 
     componentWillUnmount() {
