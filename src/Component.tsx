@@ -2,7 +2,7 @@ import * as React from 'react';
 import { storeContextKey, defaultStoreKey } from './Provider';
 import * as PropTypes from 'prop-types';
 import { Subscription } from 'rxjs';
-import { Store } from 'rxjs-dew';
+import { Store, ActionCreatorMap, bindActionCreatorMap } from 'rxjs-dew';
 
 /**
  * Extends React.Component to connect to an Dew store provided to
@@ -97,6 +97,10 @@ export abstract class Component<Props, State, StoreState, Action> extends
             this.actionSubscription.unsubscribe();
             this.actionSubscription = undefined;
         }
+    }
+
+    bindActions<T extends ActionCreatorMap<Action>>(map: T) {
+        return bindActionCreatorMap(map, this.dispatch);
     }
 
     abstract render(): JSX.Element | null | false;
