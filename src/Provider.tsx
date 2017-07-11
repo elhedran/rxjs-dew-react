@@ -3,16 +3,17 @@ import { Children } from 'react';
 import * as PropTypes from 'prop-types';
 import { Store } from 'rxjs-dew';
 
-export type Props<State, Action> = {
+export type StoreMap = {
+    [key: string]: Store<any, any>;
+}
+
+const isStore = (thing: Store<any, any> | any): thing is Store<any, any> => thing.action$ && thing.state$ && thing.dispatch$;
+
+export type Props = {
     /**
      * The Dew store to be provided to the react context.
      */
-    store: Store<State, Action>;
-    /**
-     * The key to provide the store under. If this property isn't provided the
-     * default store context key is used.
-     */
-    storeKey?: string;
+    store: Store<any, any> | StoreMap;
 };
 
 export const storeContextKey = '@rxjs-dew-react/context/store';
@@ -26,7 +27,7 @@ export const defaultStoreKey = 'default';
  * in separating stores, for example separating out a routing store from
  * the application store.
  */
-export class Provider<S, A> extends React.Component<Props<S, A>, {}> {
+export class Provider extends React.Component<Props, {}> {
     static childContextTypes = {
         [storeContextKey]: PropTypes.object
     };
@@ -36,9 +37,13 @@ export class Provider<S, A> extends React.Component<Props<S, A>, {}> {
 
     getChildContext() {
         const parentContext = this.context[storeContextKey];
-        const thisContext = {
-            [this.props.storeKey || defaultStoreKey]: this.props.store,
-        };
+
+        const store = this.props.store;
+        
+        const thisContext: StoreMap = isStore(store)
+        ? { [defaultStoreKey]: store }
+        : store;
+
         const childContext = parentContext
             ? Object.assign({}, parentContext, thisContext)
             : thisContext;
@@ -47,7 +52,7 @@ export class Provider<S, A> extends React.Component<Props<S, A>, {}> {
         };
     }
 
-    componentWillReceiveProps(nextProps: Readonly<Props<S, A>>) {
+    componentWillReceiveProps(nextProps: Readonly<Props>) {
         if (this.props.store !== nextProps.store) {
             throw '<Provider> does not support changing store property on the fly. ';
         }
