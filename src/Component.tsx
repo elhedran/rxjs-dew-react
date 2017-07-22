@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { storeContextKey, defaultStoreKey } from './Provider';
 import * as PropTypes from 'prop-types';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable, Subject } from 'rxjs';
 import { Store, ActionCreatorMap, bindActionCreatorMap } from 'rxjs-dew';
 
 /**
@@ -25,12 +25,10 @@ export abstract class Component<Props, State, StoreState, Action> extends
         [storeContextKey]: PropTypes.object
     };
 
-    private readonly store =
-    this.context[storeContextKey]
-    [this.props.storeKey || defaultStoreKey] as Store<StoreState, Action>;
-    private readonly state$ = this.store.state$;
-    private readonly action$ = this.store.action$;
-    private readonly dispatch$ = this.store.dispatch$;
+    private readonly store: Store<StoreState, Action>;
+    private readonly state$: Observable<StoreState>;
+    private readonly action$: Observable<Action>;
+    private readonly dispatch$: Subject<Action>;
     private stateSubscription: Subscription | undefined;
     private actionSubscription: Subscription | undefined;
 
@@ -39,34 +37,47 @@ export abstract class Component<Props, State, StoreState, Action> extends
         this.context = context;
         if (
             !context[storeContextKey]
-            || !context[storeContextKey][this.props.storeKey || defaultStoreKey]
         ) {
-            throw 'Missing store. It is recommended to wrap any rxjs-dew-react '
-            + 'Components with a rxjs-dew-react Provider to set the store object. '
-            + ' If a key is storeKey is set it must match a key set by a Provider '
-            + ' component.';
+            throw 'Missing context. It is recommended to wrap any rxjs-dew-react '
+            + 'Components with a rxjs-dew-react Provider to set the store context object.';
         }
+        this.store =
+            this.context[storeContextKey]
+            [this.props.storeKey || defaultStoreKey] as Store<StoreState, Action>;
+        if (!this.store) {
+            throw 'Missing store. No store provided via a rxjs-dew-react Provider match '
+            + 'storeKey required by this component.';
+        }
+        if (this.store.action$ === undefined
+            || this.store.dispatch$ === undefined
+            || this.store.state$ === undefined) {
+            throw 'Invalid store. Store provided via rxjs-dew-react Provider is not a valid '
+            + 'store.';
+        }
+        this.state$ = this.store.state$;
+        this.action$ = this.store.action$;
+        this.dispatch$ = this.store.dispatch$;
     }
 
-/**
- * Override this function to map the StoreState to this component's state.
- * The result will be applied to the `setState` function.
- * 
- * @param storeState the current state of the Dew store.
- */
+    /**
+     * Override this function to map the StoreState to this component's state.
+     * The result will be applied to the `setState` function.
+     * 
+     * @param storeState the current state of the Dew store.
+     */
     mapToState?(storeState: StoreState): Pick<State, keyof State>;
 
-/**
- *  Override this function to apply actions to this component's state.
- * @param state the current state prior to applying the action
- * @param action the action to apply.
- */
+    /**
+     *  Override this function to apply actions to this component's state.
+     * @param state the current state prior to applying the action
+     * @param action the action to apply.
+     */
     soak?(state: State, action: Action): Pick<State, keyof State>;
 
-/**
- * Dispatches actions to the Dew store
- * @param action the action to dispatch
- */
+    /**
+     * Dispatches actions to the Dew store
+     * @param action the action to dispatch
+     */
     dispatch = (action: Action) => this.dispatch$.next(action);
 
     componentWillReceiveProps(nextProps: Readonly<Props & { storeKey?: string }>) {
