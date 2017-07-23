@@ -65,14 +65,14 @@ export abstract class Component<Props, State, StoreState, Action> extends
      * 
      * @param storeState the current state of the Dew store.
      */
-    mapToState?(storeState: StoreState): Pick<State, keyof State>;
+    applyStoreState?(storeState: StoreState): void;
 
     /**
      *  Override this function to apply actions to this component's state.
      * @param state the current state prior to applying the action
      * @param action the action to apply.
      */
-    soak?(state: State, action: Action): Pick<State, keyof State>;
+    applyStoreAction?(action: Action): Pick<State, keyof State>;
 
     /**
      * Dispatches actions to the Dew store
@@ -87,16 +87,12 @@ export abstract class Component<Props, State, StoreState, Action> extends
     }
 
     componentDidMount() {
-        if (this.mapToState) {
-            this.stateSubscription = this.state$.subscribe(
-                rs => this.mapToState && this.setState(this.mapToState(rs))
-            );
-        }
-        if (this.soak) {
-            this.actionSubscription = this.action$.subscribe(
-                a => this.soak && this.setState(this.soak(this.state, a))
-            );
-        }
+        this.stateSubscription = this.state$.last().subscribe(storeState => {
+            if (this.applyStoreState) this.applyStoreState(storeState);
+        });
+        this.actionSubscription = this.action$.subscribe(action => {
+            if (this.applyStoreAction) this.applyStoreAction(action)
+        });
     }
 
     componentWillUnmount() {
