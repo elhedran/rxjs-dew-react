@@ -87,7 +87,7 @@ export abstract class Component<Props, State, StoreState, Action> extends
     }
 
     componentDidMount() {
-        this.stateSubscription = this.state$.last().subscribe(storeState => {
+        this.stateSubscription = this.state$.subscribe(storeState => {
             if (this.applyStoreState) this.applyStoreState(storeState);
         });
         this.actionSubscription = this.action$.subscribe(action => {
