@@ -72,7 +72,7 @@ export abstract class Component<Props, State, StoreState, Action> extends
      * @param state the current state prior to applying the action
      * @param action the action to apply.
      */
-    applyStoreAction?(action: Action): Pick<State, keyof State>;
+    applyStoreAction?(action: Action): void;
 
     /**
      * Dispatches actions to the Dew store
@@ -85,14 +85,21 @@ export abstract class Component<Props, State, StoreState, Action> extends
             throw 'Dew Component does not support changing storeKey property on the fly. ';
         }
     }
-
-    componentDidMount() {
-        this.stateSubscription = this.state$.subscribe(storeState => {
+    private createSubscriptions() {
+        this.stateSubscription = this.stateSubscription || this.state$.subscribe(storeState => {
             if (this.applyStoreState) this.applyStoreState(storeState);
         });
-        this.actionSubscription = this.action$.subscribe(action => {
-            if (this.applyStoreAction) this.applyStoreAction(action)
+        this.actionSubscription = this.actionSubscription || this.action$.subscribe(action => {
+            if (this.applyStoreAction) this.applyStoreAction(action);
         });
+
+    }
+    
+    componentWillMount() {
+        this.createSubscriptions();
+    }
+    componentDidMount() {
+        this.createSubscriptions();
     }
 
     componentWillUnmount() {
