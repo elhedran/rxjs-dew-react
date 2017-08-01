@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { storeContextKey, defaultStoreKey } from './Provider';
 import * as PropTypes from 'prop-types';
-import { Subscription, Observable, Subject } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { Store, ActionCreatorMap, bindActionCreatorMap } from 'rxjs-dew';
 
 /**
@@ -25,10 +25,7 @@ export abstract class Component<Props, State, StoreState, Action> extends
         [storeContextKey]: PropTypes.object
     };
 
-    private readonly store: Store<StoreState, Action>;
-    private readonly state$: Observable<StoreState>;
-    private readonly action$: Observable<Action>;
-    private readonly dispatch$: Subject<Action>;
+    protected readonly store: Store<StoreState, Action>;
     private stateSubscription: Subscription | undefined;
     private actionSubscription: Subscription | undefined;
 
@@ -54,9 +51,6 @@ export abstract class Component<Props, State, StoreState, Action> extends
             throw 'Invalid store. Store provided via rxjs-dew-react Provider is not a valid '
             + 'store.';
         }
-        this.state$ = this.store.state$;
-        this.action$ = this.store.action$;
-        this.dispatch$ = this.store.dispatch$;
     }
 
     /**
@@ -78,7 +72,7 @@ export abstract class Component<Props, State, StoreState, Action> extends
      * Dispatches actions to the Dew store
      * @param action the action to dispatch
      */
-    dispatch = (action: Action) => this.dispatch$.next(action);
+    dispatch = (action: Action) => this.store.dispatch$.next(action);
 
     componentWillReceiveProps(nextProps: Readonly<Props & { storeKey?: string }>) {
         if (this.props.storeKey !== nextProps.storeKey) {
@@ -86,10 +80,10 @@ export abstract class Component<Props, State, StoreState, Action> extends
         }
     }
     private createSubscriptions() {
-        this.stateSubscription = this.stateSubscription || this.state$.subscribe(storeState => {
+        this.stateSubscription = this.stateSubscription || this.store.state$.subscribe(storeState => {
             if (this.applyStoreState) this.applyStoreState(storeState);
         });
-        this.actionSubscription = this.actionSubscription || this.action$.subscribe(action => {
+        this.actionSubscription = this.actionSubscription || this.store.action$.subscribe(action => {
             if (this.applyStoreAction) this.applyStoreAction(action);
         });
 
