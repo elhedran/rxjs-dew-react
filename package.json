@@ -27,12 +27,12 @@
     },
     "homepage": "https://github.com/elhedran/rxjs-dew-react#readme",
     "devDependencies": {
+        "@types/prop-types": "^15.5.1",
+        "@types/react": "^15.0.38",
         "tslint": "^5.5.0",
         "typescript": "2.3.4"
     },
     "dependencies": {
-        "@types/prop-types": "^15.5.1",
-        "@types/react": "^15.0.38",
         "prop-types": "^15.5.10",
         "react": "^15.6.1",
         "rxjs": "^5.4.2",
