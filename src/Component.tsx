@@ -1,8 +1,11 @@
-import * as React from 'react';
-import { storeContextKey, defaultStoreKey } from './Provider';
-import * as PropTypes from 'prop-types';
+import { Consumer } from './Consumer';
+import { defaultStoreKey } from './utils';
 import { Subscription } from 'rxjs';
 import { Store, ActionCreatorMap, bindActionCreatorMap } from 'rxjs-dew';
+
+export type ComponentProps = {
+    storeKey?: string
+};
 
 /**
  * Extends React.Component to connect to an Dew store provided to
@@ -19,32 +22,17 @@ import { Store, ActionCreatorMap, bindActionCreatorMap } from 'rxjs-dew';
  * specific store.
  */
 export abstract class Component<Props, State, StoreState, Action> extends
-    React.Component<Props & { storeKey?: string }, State>
+    Consumer<Props & ComponentProps, State>
 {
-    static contextTypes = {
-        [storeContextKey]: PropTypes.object
-    };
-
     protected readonly store: Store<StoreState, Action>;
     private stateSubscription: Subscription | undefined;
     private actionSubscription: Subscription | undefined;
 
-    constructor(props: Props, context: {}) {
+    constructor(props: Props & ComponentProps, context: {}) {
         super(props, context);
-        this.context = context;
-        if (
-            !context[storeContextKey]
-        ) {
-            throw 'Missing context. It is recommended to wrap any rxjs-dew-react '
-            + 'Components with a rxjs-dew-react Provider to set the store context object.';
-        }
-        this.store =
-            this.context[storeContextKey]
-            [this.props.storeKey || defaultStoreKey] as Store<StoreState, Action>;
-        if (!this.store) {
-            throw 'Missing store. No store provided via a rxjs-dew-react Provider match '
-            + 'storeKey required by this component.';
-        }
+        const key = props.storeKey || defaultStoreKey;
+        this.store = this.storeMap[key];
+
         if (this.store.action$ === undefined
             || this.store.dispatch$ === undefined
             || this.store.state$ === undefined) {
