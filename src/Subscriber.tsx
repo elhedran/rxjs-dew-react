@@ -7,6 +7,15 @@ export type SubscriberProps<State, Action> = {
     state$: Rx.Observable<State>;
 }
 
+/**
+ * Extends React.Component to connect to a dispatch$ observable and state$ observable.
+ * It assumes the component state type matches that of the observable.
+ * - `Props` - component specific properties
+ * - `State` - component specific state and state as promoted via the observable
+ * - `Action` - Action type as consumed by the dispatch$ subject.
+ * 
+ * This component does not attempt to connect to any React context.
+ */
 export abstract class Subscriber<Props, State, Action> extends
     React.Component<Props & SubscriberProps<State, Action>, State>
 {

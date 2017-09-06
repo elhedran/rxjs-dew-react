@@ -2,6 +2,14 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { StoreMap, storeContextKey } from './utils';
 
+/**
+ * Extends React.Component to connect to a Dew store map provided
+ * to the React context via a Dew provider.
+ * 
+ * The store map is made accessible via the `storeMap` protected
+ * readonly property.  No bindings or subscriptions
+ * are enabled.
+ */
 export abstract class Consumer<Props, State> extends
     React.Component<Props, State>
 {
