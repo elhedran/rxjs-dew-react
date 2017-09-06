@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Children } from 'react';
 import * as PropTypes from 'prop-types';
 import { Store } from 'rxjs-dew';
+import { assign } from 'rxjs/util/assign';
 import { StoreMap, isStore, storeContextKey, defaultStoreKey } from './utils';
 
 export type ProviderProps = {
@@ -37,7 +38,7 @@ export class Provider extends React.Component<ProviderProps, {}> {
         : store;
 
         const childContext = parentContext
-            ? Object.assign({}, parentContext, thisContext)
+            ? assign({}, parentContext, thisContext)
             : thisContext;
         return {
             [storeContextKey]: childContext
