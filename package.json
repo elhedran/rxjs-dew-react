@@ -39,8 +39,6 @@
     "homepage": "https://github.com/elhedran/rxjs-dew-react#readme",
     "devDependencies": {
         "@types/jasmine": "^2.5.54",
-        "@types/prop-types": "^15.5.1",
-        "@types/react": "^15.0.38",
         "jasmine": "^2.8.0",
         "jsdom": "^11.2.0",
         "mkdirp": "^0.5.1",
@@ -51,6 +49,8 @@
         "watch": "^1.0.2"
     },
     "dependencies": {
+        "@types/prop-types": "^15.5.1",
+        "@types/react": "^16.0.5",
         "prop-types": "^15.5.10",
         "react": "^15.6.1",
         "rxjs": "^5.4.2",
