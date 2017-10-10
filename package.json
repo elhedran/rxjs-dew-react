@@ -1,6 +1,6 @@
 {
     "name": "rxjs-dew-react",
-    "version": "0.6.6",
+    "version": "0.6.7",
     "description": "React bindings for rxjs-dw",
     "main": "js/dist/index.js",
     "typings": "js/dist/index",
@@ -46,14 +46,18 @@
         "shx": "^0.2.2",
         "tslint": "^5.5.0",
         "typescript": "2.3.4",
-        "watch": "^1.0.2"
+        "watch": "^1.0.2",
+        "@types/prop-types": "^15.5.1",
+        "@types/react": "^15.0.5"
     },
     "dependencies": {
-        "@types/prop-types": "^15.5.1",
-        "@types/react": "^16.0.5",
         "prop-types": "^15.5.10",
         "react": "^15.6.1",
         "rxjs": "^5.4.2",
         "rxjs-dew": "^0.6.5"
+    },
+    "peerDependencies": {
+        "@types/prop-types": "^15.5.1",
+        "@types/react": "^15.0.5"
     }
 }
