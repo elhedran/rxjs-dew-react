@@ -1,6 +1,6 @@
 {
     "name": "rxjs-dew-react",
-    "version": "0.6.7",
+    "version": "1.0.0",
     "description": "React bindings for rxjs-dw",
     "main": "js/dist/index.js",
     "typings": "js/dist/index",

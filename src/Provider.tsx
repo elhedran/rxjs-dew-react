@@ -1,16 +1,17 @@
 import * as React from 'react';
 import { Children } from 'react';
 import * as PropTypes from 'prop-types';
-import { Store } from 'rxjs-dew';
 import { assign } from 'rxjs/util/assign';
-import { StoreMap, isStore, storeContextKey, defaultStoreKey } from './utils';
+import { StoreMap, storeContextKey } from './utils';
 
-export type ProviderProps = {
-    /**
-     * The Dew store to be provided to the react context.
-     */
-    store: Store<any, any> | StoreMap;
-};
+export namespace Provider {
+    export type Props = {
+        /**
+         * The Dew store to be provided to the react context.
+         */
+        storeMap: StoreMap;
+    };
+}
 
 /**
  * Provides a Dew store into the react context for any child components.
@@ -20,7 +21,7 @@ export type ProviderProps = {
  * in separating stores, for example separating out a routing store from
  * the application store.
  */
-export class Provider extends React.Component<ProviderProps, {}> {
+export class Provider extends React.Component<Provider.Props, {}> {
     static childContextTypes = {
         [storeContextKey]: PropTypes.object
     };
@@ -31,11 +32,7 @@ export class Provider extends React.Component<ProviderProps, {}> {
     getChildContext() {
         const parentContext = this.context[storeContextKey];
 
-        const store = this.props.store;
-        
-        const thisContext: StoreMap = isStore(store)
-        ? { [defaultStoreKey]: store }
-        : store;
+        const thisContext: StoreMap = this.props.storeMap;
 
         const childContext = parentContext
             ? assign({}, parentContext, thisContext)
@@ -45,9 +42,9 @@ export class Provider extends React.Component<ProviderProps, {}> {
         };
     }
 
-    componentWillReceiveProps(nextProps: Readonly<ProviderProps>) {
-        if (this.props.store !== nextProps.store) {
-            throw '<Provider> does not support changing store property on the fly. ';
+    componentWillReceiveProps(nextProps: Readonly<Provider.Props>) {
+        if (this.props.storeMap !== nextProps.storeMap) {
+            throw '<Provider> does not support changing storeMap property on the fly. ';
         }
     }
 

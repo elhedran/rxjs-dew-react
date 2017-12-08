@@ -1,3 +1,4 @@
 export * from './Provider';
 export * from './Component';
-export * from './Subscriber';
+export * from './Consumer';
+export * from './BoundConsumer';

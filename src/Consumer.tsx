@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
+import { Subscription, Observable } from 'rxjs';
 import { StoreMap, storeContextKey } from './utils';
 
 /**
@@ -10,8 +11,8 @@ import { StoreMap, storeContextKey } from './utils';
  * readonly property.  No bindings or subscriptions
  * are enabled.
  */
-export abstract class Consumer<Props, State> extends
-    React.Component<Props, State>
+export interface Consumer<P = {}, S = {}> extends React.Component<P, S> { }
+export abstract class Consumer<P, S> extends React.Component<P, S>
 {
     static contextTypes = {
         [storeContextKey]: PropTypes.object
@@ -19,7 +20,7 @@ export abstract class Consumer<Props, State> extends
 
     protected readonly storeMap: StoreMap;
 
-    constructor(props: Props, context: {}) {
+    constructor(props: P, context: {}) {
         super(props, context);
         this.context = context;
         if (
@@ -36,7 +37,32 @@ export abstract class Consumer<Props, State> extends
         }
     }
 
-    abstract render(): JSX.Element | null | false;
-}
+    private subscriptions: Subscription[] = []
+    protected subscribe<K extends keyof S>(state$: Observable<Pick<S, K>>): void;
+    protected subscribe<T>(map$: Observable<T>, fn: (prev: S, value: T) => S, callback?: () => any): void;
+    protected subscribe<K extends keyof S, T>(
+        state$: Observable<Pick<S, K>> | Observable<T>,
+        fn?: (value: T, prev: S, props: P) => S,
+        callback?: () => any
+    ): void {
+        if (fn !== undefined) {
+            this.subscriptions.push(
+                (state$ as Observable<T>).subscribe(
+                    value => this.setState((prev, props) => fn(value, prev, props), callback)
+                )
+            );
+        } else {
+            this.subscriptions.push(
+                (state$ as Observable<Pick<S, K>>).subscribe(
+                    p => this.setState(p)
+                )
+            );
+        }
+    }
 
-export default Consumer;
+
+    protected unsubscribe(): void {
+        this.subscriptions.forEach(s => s.unsubscribe());
+        this.subscriptions = [];
+    }
+}
